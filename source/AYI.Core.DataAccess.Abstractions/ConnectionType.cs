@@ -1,4 +1,4 @@
-﻿namespace AYI.Core.DataAccess;
+﻿namespace AYI.Core.DataAccess.Abstractions;
 
 public abstract class ConnectionType;
 

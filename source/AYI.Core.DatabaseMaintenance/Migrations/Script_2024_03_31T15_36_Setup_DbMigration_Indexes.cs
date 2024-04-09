@@ -1,4 +1,6 @@
-﻿using Dapper;
+﻿using AYI.Core.DataAccess;
+using AYI.Core.DataAccess.Abstractions;
+using Dapper;
 using Microsoft.Data.Sqlite;
 
 namespace AYI.Core.DatabaseMaintenance.Migrations;
@@ -6,9 +8,9 @@ namespace AYI.Core.DatabaseMaintenance.Migrations;
 public class Script_2024_03_31T15_36_Setup_DbMigration_Indexes : IDbScript
 {
 	/// <inheritdoc />
-	public async Task Execute(SqliteConnection connection)
+	public async Task Execute(IDatabaseConnection<ReadWrite> connection)
 	{
-		var indexExists = await connection.QuerySingleAsync<bool>(@"
+		var indexExists = await connection.QuerySingle<bool>(@"
 			SELECT EXISTS (
 				SELECT 1
 				FROM sqlite_master
@@ -18,7 +20,7 @@ public class Script_2024_03_31T15_36_Setup_DbMigration_Indexes : IDbScript
 		if (indexExists)
 			return;
 
-		await connection.ExecuteAsync(@"
+		await connection.Execute(@"
 			create index IX_db_migrations_script_name
 			    on db_migrations (script_name);");
 	}

@@ -1,4 +1,6 @@
-﻿using Dapper;
+﻿using AYI.Core.DataAccess;
+using AYI.Core.DataAccess.Abstractions;
+using Dapper;
 using Microsoft.Data.Sqlite;
 
 namespace AYI.Core.DatabaseMaintenance.Migrations;
@@ -6,9 +8,9 @@ namespace AYI.Core.DatabaseMaintenance.Migrations;
 public class Script_2024_03_31T14_01_SetupDatabase : IDbScript
 {
 	/// <inheritdoc />
-	public async Task Execute(SqliteConnection connection)
+	public async Task Execute(IDatabaseConnection<ReadWrite> connection)
 	{
-		var migrationsTableExists = await connection.QuerySingleAsync<bool>(@"
+		var migrationsTableExists = await connection.QuerySingle<bool>(@"
 			SELECT EXISTS (
 				SELECT 1
 				FROM sqlite_master
@@ -18,7 +20,7 @@ public class Script_2024_03_31T14_01_SetupDatabase : IDbScript
 		if (migrationsTableExists)
 			return;
 
-		await connection.ExecuteAsync(@"
+		await connection.Execute(@"
 			create table db_migrations
 			(
 			    run_id            INTEGER
