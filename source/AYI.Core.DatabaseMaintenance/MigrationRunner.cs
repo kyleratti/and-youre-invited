@@ -9,7 +9,7 @@ public class MigrationRunner(
 	ILogger<MigrationRunner> _logger
 )
 {
-	public async Task<ExitStatus> RunMigrations(INonTransactionalDbConnection<ReadWrite> connection)
+	public async Task<ExitStatus> RunMigrations(IDatabaseConnection<ReadWrite> connection)
 	{
 		var migrationTypes = Assembly.GetExecutingAssembly().GetTypes()
 			.Where(t => t.IsAssignableTo(typeof(IDbScript)))
@@ -66,7 +66,7 @@ public class MigrationRunner(
 				AND is_success = 1
 			)", new { scriptName });
 
-	private async Task<ExitStatus> RunScriptWithErrorHandling(INonTransactionalDbConnection<ReadWrite> connection, IDbScript script)
+	private async Task<ExitStatus> RunScriptWithErrorHandling(IDatabaseConnection<ReadWrite> connection, IDbScript script)
 	{
 		var scriptName = script.GetType().Name;
 
@@ -84,7 +84,7 @@ public class MigrationRunner(
 		}
 	}
 
-	private static async Task SetScriptAsSuccessful(INonTransactionalDbConnection<ReadWrite> connection, string scriptName)
+	private static async Task SetScriptAsSuccessful(IDatabaseConnection<ReadWrite> connection, string scriptName)
 	{
 		await connection.Execute("""
 			INSERT INTO db_migrations (script_name, is_success, ran_at)
@@ -92,7 +92,7 @@ public class MigrationRunner(
 			""", new { scriptName });
 	}
 
-	private static async Task SetScriptAsFailed(INonTransactionalDbConnection<ReadWrite> connection, string scriptName, Exception ex)
+	private static async Task SetScriptAsFailed(IDatabaseConnection<ReadWrite> connection, string scriptName, Exception ex)
 	{
 		await connection.Execute("""
 			INSERT INTO db_migrations (script_name, is_success, ran_at, error_message, error_stack_trace)
