@@ -1,4 +1,4 @@
-﻿namespace AYI.Core.DataAccess.Abstractions;
+﻿namespace DbAccess.Abstractions;
 
 public interface IDbConnectionFactory
 {

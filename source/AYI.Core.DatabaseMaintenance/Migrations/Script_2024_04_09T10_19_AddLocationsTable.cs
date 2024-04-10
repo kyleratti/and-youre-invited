@@ -1,5 +1,5 @@
-﻿using AYI.Core.DataAccess.Abstractions;
-using AYI.Core.DatabaseMaintenance.Util;
+﻿using AYI.Core.DatabaseMaintenance.Util;
+using DbAccess.Abstractions;
 
 namespace AYI.Core.DatabaseMaintenance.Migrations;
 

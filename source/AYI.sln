@@ -11,13 +11,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AYI.Core.DatabaseMaintenanc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AYI.Presentation.DbMaintenanceRunner", "AYI.Presentation.DbMaintenanceRunner\AYI.Presentation.DbMaintenanceRunner.csproj", "{80F20AB3-6458-4E60-B813-F38B7F7A8C0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AYI.Core.DataAccess", "AYI.Core.DataAccess\AYI.Core.DataAccess.csproj", "{71A9FA21-B040-4124-9CF6-0A91233A4605}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{71A9FA21-B040-4124-9CF6-0A91233A4605}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0426E234-FD74-4E68-B601-8E0271DA37CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AYI.Tests.DataAccess", "AYI.Tests.DataAccess\AYI.Tests.DataAccess.csproj", "{8FB7ADC7-01B7-40AC-8C2E-6066081F189B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AYI.Core.DataAccess.Abstractions", "AYI.Core.DataAccess.Abstractions\AYI.Core.DataAccess.Abstractions.csproj", "{C81F95E4-0A76-48C7-8F59-8D4131AB87C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbAccess.Abstractions", "DbAccess.Abstractions\DbAccess.Abstractions.csproj", "{C81F95E4-0A76-48C7-8F59-8D4131AB87C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

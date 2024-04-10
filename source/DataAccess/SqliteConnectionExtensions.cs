@@ -1,8 +1,7 @@
 ﻿using System.Data;
-using System.Data.Common;
 using Microsoft.Data.Sqlite;
 
-namespace AYI.Core.DataAccess;
+namespace DataAccess;
 
 public static class SqliteConnectionExtensions
 {

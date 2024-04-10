@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using AYI.Core.DataAccess.Abstractions;
 using AYI.Core.DatabaseMaintenance.Migrations;
+using DbAccess.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace AYI.Core.DatabaseMaintenance;

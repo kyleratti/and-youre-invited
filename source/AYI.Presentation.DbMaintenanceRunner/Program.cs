@@ -1,8 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using AYI.Core.DataAccess;
 using AYI.Core.DatabaseMaintenance;
 using AYI.Presentation.DbMaintenanceRunner.Services;
+using DataAccess;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

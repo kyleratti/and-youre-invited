@@ -1,4 +1,4 @@
-﻿namespace AYI.Core.DataAccess.Abstractions;
+﻿namespace DbAccess.Abstractions;
 
 // ReSharper disable once UnusedTypeParameter
 public interface IDatabaseConnection<TConnectionType> where TConnectionType : ConnectionType

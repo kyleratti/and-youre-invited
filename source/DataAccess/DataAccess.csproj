@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AYI.Core.DataAccess.Abstractions\AYI.Core.DataAccess.Abstractions.csproj" />
+      <ProjectReference Include="..\DbAccess.Abstractions\DbAccess.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

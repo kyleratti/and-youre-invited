@@ -1,9 +1,9 @@
 ﻿using System.Data;
-using AYI.Core.DataAccess.Abstractions;
 using Dapper;
+using DbAccess.Abstractions;
 using Microsoft.Data.Sqlite;
 
-namespace AYI.Core.DataAccess;
+namespace DataAccess;
 
 // ReSharper disable once UnusedTypeParameter
 public class NonTransactionalDbConnection<TConnectionType> : SqliteConnection, INonTransactionalDbConnection<TConnectionType>

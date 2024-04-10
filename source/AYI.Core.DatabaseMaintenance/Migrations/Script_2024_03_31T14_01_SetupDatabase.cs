@@ -1,6 +1,5 @@
-﻿using AYI.Core.DataAccess;
-using AYI.Core.DataAccess.Abstractions;
-using Dapper;
+﻿using Dapper;
+using DbAccess.Abstractions;
 using Microsoft.Data.Sqlite;
 
 namespace AYI.Core.DatabaseMaintenance.Migrations;

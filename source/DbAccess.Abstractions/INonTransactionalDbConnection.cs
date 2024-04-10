@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace AYI.Core.DataAccess.Abstractions;
+namespace DbAccess.Abstractions;
 
 public interface INonTransactionalDbConnection<TConnectionType> : IDatabaseConnection<TConnectionType>, IDisposable, IAsyncDisposable
 	where TConnectionType : ConnectionType

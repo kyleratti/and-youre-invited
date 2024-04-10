@@ -1,6 +1,6 @@
 ﻿using System.Data;
-using AYI.Core.DataAccess.Abstractions;
 using AYI.Core.DatabaseMaintenance;
+using DbAccess.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace AYI.Presentation.DbMaintenanceRunner.Services;

@@ -1,7 +1,7 @@
-﻿using AYI.Core.DataAccess.Abstractions;
+﻿using DbAccess.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AYI.Core.DataAccess;
+namespace DataAccess;
 
 public static class ServiceCollectionExtensions
 {
