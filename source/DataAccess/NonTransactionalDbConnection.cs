@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Dapper;
 using DbAccess.Abstractions;
 using Microsoft.Data.Sqlite;
@@ -43,6 +44,13 @@ public class NonTransactionalDbConnection<TConnectionType> : SqliteConnection, I
 		object? param = null,
 		CancellationToken cancellationToken = default
 	) => await this.ExecuteScalarAsync<T>(new CommandDefinition(sql, param, cancellationToken: cancellationToken));
+
+	/// <inheritdoc />
+	public async Task<DbDataReader> ExecuteReader(
+		string sql,
+		object? param = null,
+		CancellationToken cancellationToken = default
+	) => await this.ExecuteReaderAsync(new CommandDefinition(sql, param, cancellationToken: cancellationToken));
 
 	/// <inheritdoc />
 	public async Task<IDatabaseTransactionConnection<TConnectionType>> CreateTransaction()
