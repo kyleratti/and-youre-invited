@@ -1,0 +1,46 @@
+﻿@page "/i/{inviteId}"
+@using AYI.Core.Contracts
+@using EventQuery = AYI.Presentation.WebApp.Components.Shared.DataQuery<AYI.Core.DataModels.EventInfo>
+@inject IScheduledEventService ScheduledEventService
+
+@switch (_eventQuery)
+{
+	case EventQuery.Success s:
+		<PageTitle>@s.Data.Event.Title And You're Invited!</PageTitle>
+		break;
+	default:
+		<PageTitle>...</PageTitle>
+		break;
+}
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@code {
+	[Parameter]
+	public string? InviteId { get; set; }
+
+	private EventQuery _eventQuery = EventQuery.Loading;
+
+	/// <inheritdoc />
+	protected override async Task OnInitializedAsync()
+	{
+		if (string.IsNullOrEmpty(InviteId))
+		{
+			_eventQuery = EventQuery.NewError("Invite not found.");
+			return;
+		}
+
+		var scheduledEventResult = await ScheduledEventService.GetEventInfoByInviteId(InviteId, CancellationToken.None);
+
+		if (!scheduledEventResult.Try(out var eventInfo))
+		{
+			_eventQuery = EventQuery.NewError("Invite not found.");
+			return;
+		}
+
+		_eventQuery = EventQuery.NewSuccess(eventInfo);
+	}
+
+}

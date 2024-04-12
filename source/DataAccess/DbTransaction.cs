@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using DbAccess.Abstractions;
 using Microsoft.Data.Sqlite;
 
@@ -61,6 +62,21 @@ public class DbTransaction<TConnectionType> : IDatabaseTransactionConnection<TCo
 		var command = new CommandDefinition(sql, param, transaction: _transaction, cancellationToken: cancellationToken);
 
 		return await conn.ExecuteScalarAsync<T>(command);
+	}
+
+	/// <inheritdoc />
+	public async Task<DbDataReader> ExecuteReader(
+		string sql,
+		object? param = null,
+		CancellationToken cancellationToken = default
+	)
+	{
+		if (_transaction.Connection is not { } conn)
+			throw new InvalidOperationException("Transaction connection cannot be null");
+
+		var command = new CommandDefinition(sql, param, transaction: _transaction, cancellationToken: cancellationToken);
+
+		return await conn.ExecuteReaderAsync(command);
 	}
 
 	/// <inheritdoc />

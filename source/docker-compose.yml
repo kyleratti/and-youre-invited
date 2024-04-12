@@ -1,0 +1,12 @@
+﻿services:
+  ayi.presentation.webapp:
+    image: ayi.presentation.webapp
+    build:
+      context: .
+      dockerfile: AYI.Presentation.WebApp/Dockerfile
+
+  ayi.presentation.webapp-1:
+    image: ayi.presentation.webapp-1
+    build:
+      context: .
+      dockerfile: AYI.Presentation.WebApp/Dockerfile

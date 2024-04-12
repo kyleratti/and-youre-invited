@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <RootNamespace>AYI.Core.Services</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="Task.fs" />
+      <Compile Include="Locations.fs" />
+      <Compile Include="Invitations.fs" />
+      <Compile Include="ScheduledEventService.fs" />
+      <Compile Include="People.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AYI.Core.Contracts\AYI.Core.Contracts.csproj" />
+      <ProjectReference Include="..\AYI.Core.DataAccess\AYI.Core.DataAccess.fsproj" />
+      <ProjectReference Include="..\DbAccess.Abstractions\DbAccess.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FruityFoundation.FsBase" />
+    </ItemGroup>
+
+</Project>
