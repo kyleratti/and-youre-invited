@@ -9,6 +9,7 @@
         <Compile Include="Locations.fs" />
         <Compile Include="People.fs" />
         <Compile Include="ScheduledEvents.fs" />
+        <Compile Include="Invitations.fs" />
     </ItemGroup>
 
 </Project>

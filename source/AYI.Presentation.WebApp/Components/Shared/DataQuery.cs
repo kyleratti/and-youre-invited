@@ -1,4 +1,6 @@
-﻿namespace AYI.Presentation.WebApp.Components.Shared;
+﻿using FruityFoundation.Base.Structures;
+
+namespace AYI.Presentation.WebApp.Components.Shared;
 
 public abstract record DataQuery<TValue>
 {

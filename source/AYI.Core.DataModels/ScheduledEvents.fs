@@ -15,10 +15,27 @@ type ScheduledEvent = {
 type InvitationResponse =
     | Attending of DateTimeOffset
     | NotAttending of DateTimeOffset
+    member this.Merge   (onAttending : Func<DateTimeOffset, 'a>)
+                        (onNotAttending : Func<DateTimeOffset, 'a>) =
+        match this with
+        | Attending respondedAt -> onAttending.Invoke(respondedAt)
+        | NotAttending respondedAt -> onNotAttending.Invoke(respondedAt)
+
+type InvitationResponseDto =
+    | Attending = 1uy
+    | NotAttending = 2uy
+
+type InvitationDto = {
+    InvitationId : string
+    PersonId : int
+    CanViewGuestList : bool
+    CreatedAt : DateTimeOffset
+    Response : (InvitationResponseDto * DateTimeOffset) option
+}
 
 type Invitation = {
     InvitationId : string
-    PersonId : int
+    Person : Person
     CanViewGuestList : bool
     CreatedAt : DateTimeOffset
     Response : InvitationResponse option
@@ -27,6 +44,7 @@ type Invitation = {
 type EventInfo = {
     Event : ScheduledEvent
     Location : Location
+    ThisInvite : Invitation
     AllInvitations : IReadOnlyCollection<Invitation>
     AllInvitedPeople : IReadOnlyCollection<Person>
 }

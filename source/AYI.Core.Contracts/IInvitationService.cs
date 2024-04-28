@@ -5,5 +5,5 @@ namespace AYI.Core.Contracts;
 
 public interface IInvitationService
 {
-	public Task<IAsyncEnumerable<Invitation>> GetInvitationsForEvent(string eventId, CancellationToken cancellationToken);
+	public Task<Maybe<Invitations.AuxiliaryRsvpData>> GetAuxiliaryData(string inviteId, CancellationToken cancellationToken);
 }

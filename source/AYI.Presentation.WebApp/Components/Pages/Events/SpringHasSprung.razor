@@ -1,0 +1,287 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using AYI.Core.Contracts
+@using AYI.Core.DataModels
+@using AYI.Presentation.WebApp.Components.Shared
+@using AYI.Presentation.WebApp.Events
+@using FruityFoundation.Base.Structures
+@using FruityFoundation.FsBase
+@using AuxiliaryDataQuery = AYI.Presentation.WebApp.Components.Shared.DataQuery<FruityFoundation.Base.Structures.Maybe<AYI.Core.DataModels.Invitations.SpringHasSprungAuxiliaryData>>
+@inject IScheduledEventService EventService
+@inject IInvitationService InviteService
+@rendermode InteractiveServer
+
+<div class="event-container max-w-screen-md mx-auto p-4">
+	<Rsvp ThisInvite="EventInfo.ThisInvite">
+		<Attending>
+			<h1 class="text-7xl text-center">
+				<span class="font-bold">@EventInfo.ThisInvite.Person.FirstName, </span>
+				Spring Has Sprung and <span class="text-secondary">You'll Be Feasting!</span>
+			</h1>
+
+			<p class="text-center m-4">✅ You RSVP'd as attending</p>
+		</Attending>
+
+		<NotAttending>
+			<h1 class="text-7xl text-center">
+				<span class="font-bold">@EventInfo.ThisInvite.Person.FirstName, </span>
+				Spring Has Sprung and <span class="text-secondary">You're Missing the Feast!</span>
+			</h1>
+
+			<p class="text-center m-4">❌ You RSVP'd as not attending</p>
+		</NotAttending>
+
+		<NoResponse>
+			<h1 class="text-7xl text-center">
+				<span class="font-bold text-secondary">@EventInfo.ThisInvite.Person.FirstName, </span>
+				Spring Has Sprung and <span class="text-secondary">You're Invited to Feast!</span>
+			</h1>
+
+			<div class="my-4 px-4 text-center">
+				<h2 class="text-5xl">Will you be able to make it?</h2>
+
+				<EditForm Model="_rsvpState" OnValidSubmit="OnValidRsvpSubmitted">
+					<DataAnnotationsValidator/>
+
+					<InputRadioGroup @bind-Value="_rsvpState.Status">
+						<div class="m-4 inline">
+							<InputRadio Value="InvitationResponseDto.Attending" id="rsvp-attending"/>
+							<label for="rsvp-attending">Yes!</label>
+						</div>
+
+						<div class="inline">
+							<InputRadio Value="InvitationResponseDto.NotAttending" id="rsvp-not-attending"/>
+							<label for="rsvp-not-attending">Sorry, can't be there.</label>
+						</div>
+					</InputRadioGroup>
+					<ValidationMessage For="() => _rsvpState.Status"/>
+
+					@if (_rsvpState.Status is InvitationResponseDto.Attending)
+					{
+						<div class="mx-auto w-full md:max-w-sm">
+							<div class="slide-in m-4">
+								<label for="rsvp-allergies" class="block font-indie-flower font-bold text-xl">
+									Do you have any food allergies or dietary restrictions?
+								</label>
+								<InputTextArea @bind-Value="_rsvpState.Allergies"
+								               class="block w-full mb-4"
+								               id="rsvp-allergies"
+								               rows="3"/>
+							</div>
+
+							<div class="slide-in m-4">
+								<label for="rsvp-food" class="block font-indie-flower font-bold text-xl">
+									Are you planning on bringing any food or drinks?
+								</label>
+								<InputTextArea @bind-Value="_rsvpState.FoodBeingBrought"
+								               class="block w-full mb-4"
+								               id="rsvp-food"
+								               rows="3"/>
+							</div>
+						</div>
+					}
+
+					<div class="mt-4 text-center">
+						<button type="submit"
+						        class="rsvp-button rsvp-button--attending">
+							Submit RSVP!
+						</button>
+					</div>
+				</EditForm>
+			</div>
+		</NoResponse>
+	</Rsvp>
+
+	<div class="event-card-container mt-10 flex flex-wrap justify-center">
+		<div class="event-card my-8 px-4 lg:px-2 text-center max-w-sm mx-4">
+			<h2 class="font-bold text-3xl text-center">A Feast?</h2>
+
+			<p>A feast! Grilled salmon, grilled veggies, salad (not grilled), and drinks (alcoholic and non-alcoholic) for all!</p>
+
+			<p>Feel free to bring a snack, food, or dessert, but please <span class="text-green">coordinate with Kyle!</span></p>
+		</div>
+
+		<div class="event-card my-4 lg:my-8 px-4 lg:px-2 text-center max-w-sm mx-4">
+			<h2 class="font-bold text-3xl text-center">When?</h2>
+
+			<p>@EventInfo.Event.StartsAt.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
+		</div>
+
+		<div class="event-card my-4 lg:my-8 px-4 lg:px-2 text-center max-w-sm mx-4">
+			<h2 class="font-bold text-3xl text-center">Where?</h2>
+
+			<EventAddress Location="EventInfo.Location"
+			              ShowFullAddress="Option.toMaybe(EventInfo.ThisInvite.Response).HasValue"/>
+		</div>
+
+		@if (EventInfo.ThisInvite.CanViewGuestList)
+		{
+			<div class="event-card my-4 lg:my-8 px-4 lg:px-2 max-w-sm mx-4">
+				<h2 class="font-bold text-3xl text-center">Guest List?</h2>
+
+				<GuestList Invitations="EventInfo.AllInvitations"
+				           People="EventInfo.AllInvitedPeople"
+				           IncludeInvitationInviteLinks="true"/>
+			</div>
+		}
+
+		<div class="event-card my-4 lg:my-8 px-4 lg:px-2 pb-8 max-w-sm mx-4">
+			<h2 class="font-bold text-3xl text-center">Dog Notice</h2>
+
+			<p>Kyle's dog, <span class="text-green">Tucker</span>, will be in attendance.</p>
+
+			<p>Tucker is very friendly. If your dog is also friendly and you want to bring them, please <span class="text-green">coordinate with Kyle.</span></p>
+		</div>
+	</div>
+</div>
+
+<!--suppress CssUnresolvedCustomProperty -->
+<style>
+	@@import url("https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap");
+
+	/* From https://coolors.co/palette/f6bd60-f7ede2-f5cac3-84a59d-f28482 */
+	:root {
+		/*--color-primary: #f5cac3;*/
+		--color-primary: #f28482;
+		--color-secondary: #F282B8;
+		--color-green: #84a59d;
+	}
+
+	body {
+		background-color: #f7ede2;
+		color: var(--color-primary);
+	}
+
+	.text-secondary {
+		color: var(--color-secondary);
+	}
+
+	.text-green {
+		color: var(--color-green);
+	}
+
+	.font-indie-flower {
+		font-family: "Indie Flower", cursive;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: "Indie Flower", cursive;
+		font-weight: bold;
+		font-style: normal;
+	}
+
+	.rsvp-button {
+		color: white;
+		border: none;
+		border-radius: 5px;
+		padding: 10px 20px;
+		font-size: 1.5rem;
+		cursor: pointer;
+	}
+
+	.rsvp-button--attending {
+		background-color: var(--color-primary);
+	}
+
+	.rsvp-button--not-attending {
+		background-color: var(--color-secondary);
+	}
+
+	.slide-in {
+		animation: slide-in 0.5s ease-out;
+	}
+
+	@@keyframes slide-in {
+		from {
+			opacity: 1;
+			transform: translateY(-10%);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>
+
+@code {
+	[Parameter, EditorRequired]
+  public EventInfo EventInfo { get; set; } = null!;
+
+	[Parameter]
+	public EventCallback<NewRsvpRecordedEventArgs> OnRsvpChanged { get; set; }
+
+	private RsvpState _rsvpState = new();
+	private AuxiliaryDataQuery _auxDataQuery = AuxiliaryDataQuery.Loading;
+
+	/// <inheritdoc />
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadAuxiliaryData();
+		await InvokeAsync(StateHasChanged);
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnParametersSetAsync()
+	{
+		await LoadAuxiliaryData();
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task LoadAuxiliaryData()
+	{
+		var auxData = await InviteService.GetAuxiliaryData(
+			inviteId: EventInfo.ThisInvite.InvitationId,
+			CancellationToken.None);
+
+		if (!auxData.Try(out var auxDataValue))
+		{
+			_auxDataQuery = AuxiliaryDataQuery.NewSuccess(Maybe.Empty<Invitations.SpringHasSprungAuxiliaryData>());
+			return;
+		}
+
+		if (!Option.toMaybe(auxDataValue.TrySpringHasSprung()).Try(out var springHasSprungData))
+			throw new InvalidOperationException($"Auxiliary data type mismatched (Expected={typeof(Invitations.SpringHasSprungAuxiliaryData).FullName}, Actual={auxDataValue.GetType().FullName}");
+
+		_auxDataQuery = AuxiliaryDataQuery.NewSuccess(springHasSprungData);
+	}
+
+	private class RsvpState
+	{
+		[Required(ErrorMessage = "You must select a response.")]
+		public InvitationResponseDto? Status { get; set; }
+
+		public string? Allergies { get; set; }
+
+		public string? FoodBeingBrought { get; set; }
+	}
+
+	private async Task OnValidRsvpSubmitted(EditContext obj)
+	{
+		var state = (RsvpState)obj.Model;
+
+		var rsvpStatus = state.Status ?? throw new InvalidOperationException("Status cannot be null.");
+
+		var auxData = rsvpStatus is InvitationResponseDto.Attending
+			? new Invitations.SpringHasSprungAuxiliaryData(
+				allergies: state.Allergies,
+				foodBeingBrought: _rsvpState.FoodBeingBrought)
+			: Maybe.Empty<Invitations.SpringHasSprungAuxiliaryData>();
+
+		await EventService.RecordRsvp(
+			inviteId: EventInfo.ThisInvite.InvitationId,
+			response: rsvpStatus,
+			auxiliaryData: auxData.Map(Invitations.AuxiliaryRsvpData.NewSpringHasSprung),
+			CancellationToken.None);
+
+		await OnRsvpChanged.InvokeAsync(new NewRsvpRecordedEventArgs(
+			invitationId: EventInfo.ThisInvite.InvitationId,
+			response: rsvpStatus));
+	}
+
+}

@@ -1,0 +1,109 @@
+﻿@using AYI.Core.DataModels
+@using FruityFoundation.Base.Structures
+@using FruityFoundation.FsBase
+@using Array = System.Array
+@inject NavigationManager NavManager
+
+<div class="attendance-summary">
+	<ul class="flex flex-wrap items-center justify-center mb-2">
+		<li class="mx-2">✅ <span class="font-bold">@(GetAttending().Count)</span> Attending</li>
+		<li class="mx-2">❌ <span class="font-bold">@(GetNotAttending().Count)</span> Not Attending</li>
+		<li class="mx-2">❔ <span class="font-bold">@(GetNoResponse().Count)</span> No Response</li>
+	</ul>
+
+	<div class="w-full">
+		<ul class="flex flex-wrap items-center justify-center px-4 lg:px-0">
+			@foreach (var invite in Invitations.OrderBy(x => x.Person.FirstName))
+			{
+				<li class="w-1/2 lg:w-1/3 max-w-24">
+					@if (IncludeInvitationInviteLinks)
+					{
+						<a href="@GetInviteLink(invite.InvitationId)">
+							@if (Option.toMaybe(invite.Response).Try(out var response))
+							{
+								<span class="w-[3ch] inline-block">
+									@response.Merge(
+										attending => "✅",
+										notAttending => "❌"
+									)
+								</span>
+							}
+							else
+							{
+								<span class="w-[3ch] inline-block">❔</span>
+							}
+							@invite.Person.FirstName @Option.toMaybe(invite.Person.LastName).OrValue("")
+						</a>
+					}
+					else
+					{
+						<span>@invite.Person.FirstName @Option.toMaybe(invite.Person.LastName).OrValue("")</span>
+					}
+				</li>
+			}
+		</ul>
+	</div>
+</div>
+
+@code {
+	[Parameter, EditorRequired]
+	public IReadOnlyCollection<Invitation> Invitations { get; set; } = Array.Empty<Invitation>();
+
+	[Parameter, EditorRequired]
+	public IReadOnlyCollection<Person> People { get; set; } = Array.Empty<Person>();
+
+	[Parameter, EditorRequired]
+	public bool IncludeInvitationInviteLinks { get; set; }
+
+	private string GetInviteLink(string invitationId) =>
+		NavManager.ToAbsoluteUri("/i/" + invitationId).ToString();
+
+	private string GetInviteIcon(Maybe<InvitationResponse> response)
+	{
+		if (!response.Try(out var resp))
+			return "❔";
+		if (resp.IsAttending)
+			return "✅";
+		if (resp.IsNotAttending)
+			return "❌";
+
+		throw new NotImplementedException(resp.GetType().FullName);
+	}
+
+	private IReadOnlyCollection<Invitation> GetAttending()
+	{
+		return Invitations
+			.Where(x =>
+				Option.toMaybe(x.Response)
+					.Map(resp => resp.IsAttending)
+					.OrValue(false))
+			.ToArray();
+	}
+
+	private IReadOnlyCollection<Invitation> GetNotAttending() =>
+		Invitations
+			.Where(x =>
+				Option.toMaybe(x.Response)
+					.Map(resp => resp.IsNotAttending)
+					.OrValue(false))
+			.ToArray();
+
+	private IReadOnlyCollection<Invitation> GetNoResponse() =>
+		Invitations
+			.Where(x => !Option.toMaybe(x.Response).HasValue)
+			.ToArray();
+
+	private bool IsAttending(Invitation invite) =>
+		Option.toMaybe(invite.Response)
+			.Map(x => x.IsAttending)
+			.OrValue(false);
+
+	private bool IsNotAttending(Invitation invite) =>
+		Option.toMaybe(invite.Response)
+			.Map(x => x.IsNotAttending)
+			.OrValue(false);
+
+	private bool IsNoResponse(Invitation invite) =>
+		!Option.toMaybe(invite.Response).HasValue;
+
+}

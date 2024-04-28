@@ -12,16 +12,22 @@
       <Compile Include="Invitations.fs" />
       <Compile Include="ScheduledEventService.fs" />
       <Compile Include="People.fs" />
+      <Compile Include="Notifications.fs" />
+      <Compile Include="EmailSender.fs" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\AYI.Core.Contracts\AYI.Core.Contracts.csproj" />
       <ProjectReference Include="..\AYI.Core.DataAccess\AYI.Core.DataAccess.fsproj" />
+      <ProjectReference Include="..\AYI.Core.DTO\AYI.Core.DTO.csproj" />
       <ProjectReference Include="..\DbAccess.Abstractions\DbAccess.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Azure.Communication.Email" />
       <PackageReference Include="FruityFoundation.FsBase" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+      <PackageReference Include="Microsoft.Extensions.Options" />
     </ItemGroup>
 
 </Project>

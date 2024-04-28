@@ -38,3 +38,29 @@ let findEventByInviteId (connection : IDatabaseConnection<ReadOnly>) (cancellati
             |> Seq.tryHead
             //|> TaskSeq.tryHead
 }
+
+type EventHost = {
+    PersonId : int
+    EventId : string
+    EmailAddress : string option
+}
+
+let findHostsByEventId  (db : IDatabaseConnection<ReadOnly>)
+                        (cancellationToken : CancellationToken)
+                        (eventId : string) =
+    (@"SELECT
+                eh.event_id
+                ,p.person_id
+                ,p.email_address
+             FROM event_hosts eh
+             INNER JOIN people p ON p.person_id = eh.person_id
+             WHERE
+                eh.event_id = @eventId",
+             [|("eventId", box eventId)|])
+        |> executeReader db cancellationToken
+        |> mapReader cancellationToken (fun reader ->
+            {
+                EventId = reader |> getString 0
+                PersonId = reader |> getInt32 1
+                EmailAddress = reader |> tryGetString 2
+            } : EventHost)

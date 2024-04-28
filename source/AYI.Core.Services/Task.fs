@@ -1,4 +1,4 @@
-﻿module AYI.Core.Services.Task
+﻿module internal AYI.Core.Services.Task
 
 open System.Threading.Tasks
 

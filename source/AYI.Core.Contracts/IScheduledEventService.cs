@@ -7,4 +7,5 @@ public interface IScheduledEventService
 {
 	public Task<Maybe<ScheduledEvent>> GetScheduledEventByInviteId(string inviteId, CancellationToken cancellationToken);
 	public Task<Maybe<EventInfo>> GetEventInfoByInviteId(string inviteId, CancellationToken cancellationToken);
+	public Task RecordRsvp(string inviteId, InvitationResponseDto response, Maybe<Invitations.AuxiliaryRsvpData> auxiliaryData, CancellationToken cancellationToken);
 }

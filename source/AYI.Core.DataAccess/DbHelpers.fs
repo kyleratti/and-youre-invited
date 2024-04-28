@@ -28,6 +28,21 @@ let executeReader (connection : IDatabaseConnection<_>) (cancellationToken : Can
     return! connection.ExecuteReader(sql, parameters, cancellationToken)
 }
 
+let execute (connection : IDatabaseConnection<_>) (cancellationToken : CancellationToken) (cmd : string * (string * obj) array) : Task = task {
+    let sql, parameters = cmd |> (fun (sql, parms) -> sql, dict parms)
+    return! connection.Execute(sql, parameters, cancellationToken)
+}
+
+let executeScalar<'a> (connection : IDatabaseConnection<ReadOnly>) (cancellationToken : CancellationToken) (cmd : string * (string * obj) array) : Task<'a option> = task {
+    let sql, parameters = cmd |> (fun (sql, parms) -> sql, dict parms)
+    return! connection.ExecuteScalar<'a>(sql, parameters, cancellationToken)
+            |> Task.map box
+            |> Task.map (function
+                | :? DBNull -> None
+                | x when x = null -> None
+                | x -> x :?> 'a |> Some)
+}
+
 let mapReader<'a>   (cancellationToken : CancellationToken)
                     (mapper : DbDataReader -> 'a)
                     (reader : Task<DbDataReader>) = taskSeq {
