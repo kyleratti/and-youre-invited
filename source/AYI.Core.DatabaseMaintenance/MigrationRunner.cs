@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Data;
+using System.Reflection;
 using AYI.Core.DatabaseMaintenance.Migrations;
 using DbAccess.Abstractions;
 using Microsoft.Extensions.Logging;
@@ -6,10 +7,11 @@ using Microsoft.Extensions.Logging;
 namespace AYI.Core.DatabaseMaintenance;
 
 public class MigrationRunner(
-	ILogger<MigrationRunner> _logger
+	ILogger<MigrationRunner> _logger,
+	IDbConnectionFactory _dbConnectionFactory
 )
 {
-	public async Task<ExitStatus> RunMigrations(IDatabaseConnection<ReadWrite> connection)
+	public async Task<ExitStatus> RunMigrations()
 	{
 		var migrationTypes = Assembly.GetExecutingAssembly().GetTypes()
 			.Where(t => t.IsAssignableTo(typeof(IDbScript)))
@@ -21,17 +23,17 @@ public class MigrationRunner(
 		{
 			try
 			{
-				var isDatabaseInitialized = await IsDatabaseInitialized(connection);
-
-				if (isDatabaseInitialized)
+				if (await IsDatabaseInitialized())
 				{
-					var hasRunSuccessfully = await HasScriptRunSuccessfully(connection, migrationType.Name);
+					var hasRunSuccessfully = await HasScriptRunSuccessfully(migrationType.Name);
 
 					if (hasRunSuccessfully)
 						continue;
 				}
 
 				var migration = (IDbScript)Activator.CreateInstance(migrationType)!;
+
+				await using var connection = await _dbConnectionFactory.CreateConnection();
 
 				var exitStatus = await RunScriptWithErrorHandling(connection, migration);
 
@@ -48,32 +50,43 @@ public class MigrationRunner(
 		return ExitStatus.Successful;
 	}
 
-	private async Task<bool> IsDatabaseInitialized(IDatabaseConnection<ReadWrite> connection) =>
-		await connection.QuerySingle<bool>(@"
+	private async Task<bool> IsDatabaseInitialized()
+	{
+		await using var connection = await _dbConnectionFactory.CreateReadOnlyConnection();
+
+		return await connection.QuerySingle<bool>(@"
 			SELECT EXISTS (
 				SELECT 1
 				FROM sqlite_master
 				WHERE type = 'table'
 				AND name = 'db_migrations'
 			)");
+	}
 
-	private async Task<bool> HasScriptRunSuccessfully(IDatabaseConnection<ReadWrite> connection, string scriptName) =>
-		await connection.QuerySingle<bool>(@"
+	private async Task<bool> HasScriptRunSuccessfully(string scriptName)
+	{
+		await using var connection = await _dbConnectionFactory.CreateReadOnlyConnection();
+
+		return await connection.QuerySingle<bool>(@"
 			SELECT EXISTS (
 				SELECT 1
 				FROM db_migrations
 				WHERE script_name = @scriptName
 				AND is_success = 1
 			)", new { scriptName });
+	}
 
-	private async Task<ExitStatus> RunScriptWithErrorHandling(IDatabaseConnection<ReadWrite> connection, IDbScript script)
+	private async Task<ExitStatus> RunScriptWithErrorHandling(INonTransactionalDbConnection<ReadWrite> connection, IDbScript script)
 	{
 		var scriptName = script.GetType().Name;
 
 		try
 		{
-			await script.Execute(connection);
-			await SetScriptAsSuccessful(connection, scriptName);
+			if (script is INonTransactionalDbScript)
+				await RunScriptImpl(connection, script, scriptName);
+			else
+				await WithTransaction(connection, tx => RunScriptImpl(tx, script, scriptName));
+
 			return ExitStatus.Successful;
 		}
 		catch (Exception ex)
@@ -82,6 +95,21 @@ public class MigrationRunner(
 			await SetScriptAsFailed(connection, scriptName, ex);
 			return ExitStatus.ScriptError;
 		}
+
+		static async Task RunScriptImpl(IDatabaseConnection<ReadWrite> connection, IDbScript script, string scriptName)
+		{
+			await script.Execute(connection);
+			await SetScriptAsSuccessful(connection, scriptName);
+		}
+	}
+
+	private static async Task WithTransaction(INonTransactionalDbConnection<ReadWrite> connection, Func<IDatabaseTransactionConnection<ReadWrite>, Task> action)
+	{
+		await using var transaction = await connection.CreateTransaction();
+
+		await action(transaction);
+
+		await transaction.Commit(CancellationToken.None);
 	}
 
 	private static async Task SetScriptAsSuccessful(IDatabaseConnection<ReadWrite> connection, string scriptName)

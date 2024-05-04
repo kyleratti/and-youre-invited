@@ -23,13 +23,15 @@ public sealed class TestDatabaseHelper : IDisposable, IDbConnectionFactory
 		var connection = new NonTransactionalDbConnection<ReadWrite>($"Data Source={dbName};Mode=Memory;Cache=Shared");
 		await connection.OpenAsync();
 
-		var migrationRunner = new MigrationRunner(A.Fake<ILogger<MigrationRunner>>());
-		var result = await migrationRunner.RunMigrations(connection);
+		var testDbHelper = new TestDatabaseHelper(connection, dbName);
+
+		var migrationRunner = new MigrationRunner(A.Fake<ILogger<MigrationRunner>>(), _dbConnectionFactory: testDbHelper);
+		var result = await migrationRunner.RunMigrations();
 
 		if (result is not ExitStatus.Successful)
 			throw new Exception($"Failed to run migrations. Exit status: {result:G} ({result:D})");
 
-		return new TestDatabaseHelper(connection, dbName);
+		return testDbHelper;
 	}
 
 	/// <inheritdoc />
