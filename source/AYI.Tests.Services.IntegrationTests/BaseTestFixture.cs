@@ -28,6 +28,9 @@ public class BaseTestFixture
 		ConnectionFactory.Dispose();
 	}
 
+	[Test]
+	public void NoOpTest() => Assert.Pass();
+
 	protected async Task<DisposableContact> CreateTempContact(string firstName, Maybe<string> lastName = default, Maybe<string> email = default)
 	{
 		var contactId = await CreateContact(firstName, lastName, email);
