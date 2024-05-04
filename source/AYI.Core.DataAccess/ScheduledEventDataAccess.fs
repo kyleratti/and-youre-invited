@@ -40,7 +40,7 @@ let findEventByInviteId (connection : IDatabaseConnection<ReadOnly>) (cancellati
 }
 
 type EventHost = {
-    PersonId : int
+    ContactId : int
     EventId : string
     EmailAddress : string option
 }
@@ -61,6 +61,6 @@ let findHostsByEventId  (db : IDatabaseConnection<ReadOnly>)
         |> mapReader cancellationToken (fun reader ->
             {
                 EventId = reader |> getString 0
-                PersonId = reader |> getInt32 1
+                ContactId = reader |> getInt32 1
                 EmailAddress = reader |> tryGetString 2
             } : EventHost)

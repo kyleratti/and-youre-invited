@@ -30,35 +30,35 @@ let private toInvitationResponse = function
         | resp -> failwithf "Invalid response (%A)" resp
 
 let private getThisInvite   (allInvites : IReadOnlyCollection<InvitationDto>)
-                            (invitedPeople : IReadOnlyCollection<Contact>)
+                            (invitedContacts : IReadOnlyCollection<Contact>)
                             (inviteId : string) =
     let thisInvite =
         allInvites
         |> Seq.tryFind (fun x -> x.InvitationId = inviteId)
         |> orFailWith (sprintf "Unable to find invitation with id %s" inviteId)
 
-    let thisPerson =
-        invitedPeople
+    let thisContact =
+        invitedContacts
         |> Seq.tryFind (fun x -> x.ContactId = thisInvite.ContactId)
-        |> orFailWith (sprintf "Unable to find person with id %d" thisInvite.ContactId)
+        |> orFailWith (sprintf "Unable to find contact with id %d" thisInvite.ContactId)
 
     {
         InvitationId = thisInvite.InvitationId
-        Contact = thisPerson
+        Contact = thisContact
         CanViewGuestList = thisInvite.CanViewGuestList
         CreatedAt = thisInvite.CreatedAt
         Response = thisInvite.Response |> toInvitationResponse
     } : Invitation
 
-let private getPerson (invitedPeople : IReadOnlyCollection<Contact>) (personId : int) =
-    invitedPeople
-    |> Seq.tryFind (fun x -> x.ContactId = personId)
-    |> orFailWith (sprintf "Unable to find person with id %d" personId)
+let private getContact (invitedContacts : IReadOnlyCollection<Contact>) (contactId : int) =
+    invitedContacts
+    |> Seq.tryFind (fun x -> x.ContactId = contactId)
+    |> orFailWith (sprintf "Unable to find contact with id %d" contactId)
 
-let private toInvitation (invitedPeople : IReadOnlyCollection<Contact>) (dto : InvitationDto) =
+let private toInvitation (invitedContacts : IReadOnlyCollection<Contact>) (dto : InvitationDto) =
     {
         InvitationId = dto.InvitationId
-        Contact = dto.ContactId |> getPerson invitedPeople
+        Contact = dto.ContactId |> getContact invitedContacts
         CanViewGuestList = dto.CanViewGuestList
         CreatedAt = dto.CreatedAt
         Response = dto.Response |> toInvitationResponse
@@ -94,29 +94,29 @@ type ScheduledEventService (dbConnectionFactory : IDbConnectionFactory) =
                     |> TaskSeq.toArrayAsync
                     |> Task.map (emptySeqFailWith (sprintf "Unable to find invitations for event with id %s" scheduledEvent.EventId))
 
-                let! invitedPeople =
+                let! invitedContacts =
                     allInviteDtos
                     |> Seq.map (_.ContactId)
                     |> Array.ofSeq
-                    |> PeopleDataAccess.findPeopleById db cancellationToken
+                    |> ContactDataAccess.findContactsById db cancellationToken
                     |> TaskSeq.toArrayAsync
                     |> Task.map (emptySeqFailWith (sprintf "Unable to find people for event with id %s" scheduledEvent.EventId))
 
                 let! allInvites =
                     scheduledEvent.EventId
                     |> InvitationDataAccess.findInvitationsByEventId db cancellationToken
-                    |> TaskSeq.map (fun invitationDto -> invitationDto |> toInvitation invitedPeople)
+                    |> TaskSeq.map (fun invitationDto -> invitationDto |> toInvitation invitedContacts)
                     |> TaskSeq.toArrayAsync
                     |> Task.map (emptySeqFailWith (sprintf "Unable to find invitations for event with id %s" scheduledEvent.EventId))
 
-                let thisInvite = inviteId |> getThisInvite allInviteDtos invitedPeople
+                let thisInvite = inviteId |> getThisInvite allInviteDtos invitedContacts
 
                 return Some ({
                         Event = scheduledEvent
                         Location = location
                         ThisInvite = thisInvite
                         AllInvitations = allInvites
-                        AllInvitedContacts = invitedPeople
+                        AllInvitedContacts = invitedContacts
                     }: EventInfo)
                     |> Option.toMaybe
         }

@@ -29,10 +29,10 @@ let private getEventData    (db : IDatabaseConnection<ReadOnly>)
         inviteId
         |> ScheduledEventDataAccess.findEventByInviteId db cancellationToken
         |> Task.map (Option.defaultWith (fun () -> failwithf "No event found for invitation id: %s" inviteId))
-    let! personResponding =
+    let! contactResponding =
         inviteId
-        |> PeopleDataAccess.findByInviteId db cancellationToken
-        |> Task.map (Option.defaultWith (fun () -> failwithf "No person found for invitation id: %s" inviteId))
+        |> ContactDataAccess.findByInviteId db cancellationToken
+        |> Task.map (Option.defaultWith (fun () -> failwithf "No contact found for invitation id: %s" inviteId))
     let! auxData =
         (inviteId, cancellationToken)
         |> inviteService.GetAuxiliaryData
@@ -48,7 +48,7 @@ let private getEventData    (db : IDatabaseConnection<ReadOnly>)
 
     return {|
              Event = event
-             Person = personResponding
+             Contact = contactResponding
              AuxData = auxData
              Hosts = hosts
              Rsvps = rsvps
@@ -94,11 +94,11 @@ let private toPlainTextListWithDefault (defaultVal : string option) (input : str
 let private toPlainTextList (defaultVal : string) (input : string seq) =
     input |> toPlainTextListWithDefault (Some defaultVal)
 
-let private generatePlainTextMessageBody (personResponding : Contact)
+let private generatePlainTextMessageBody (contactResponding : Contact)
                                 (response : InvitationResponseDto)
                                 (auxData : AuxiliaryRsvpData option)
                                 (otherRsvps : EventRsvp array) =
-    let name = formatName personResponding.FirstName personResponding.LastName
+    let name = formatName contactResponding.FirstName contactResponding.LastName
     let intro =
         match response with
         | InvitationResponseDto.Attending -> $"Yay! {name} is attending!"
@@ -135,14 +135,14 @@ type NotificationService (dbConnectionFactory : IDbConnectionFactory
                                                   cancellationToken : CancellationToken) = task {
             use! db = dbConnectionFactory.CreateReadOnlyConnection ()
             let! data = invitationId |> getEventData db inviteService cancellationToken
-            let name = formatName data.Person.FirstName data.Person.LastName
+            let name = formatName data.Contact.FirstName data.Contact.LastName
             let rsvpStatus =
                 match response with
                 | InvitationResponseDto.Attending -> "attending"
                 | InvitationResponseDto.NotAttending -> "not attending"
                 | _ -> failwithf "Unhandled response: %A" response
             let subject = $"RSVP: {name} is {rsvpStatus}"
-            let body = generatePlainTextMessageBody data.Person response data.AuxData data.Rsvps
+            let body = generatePlainTextMessageBody data.Contact response data.AuxData data.Rsvps
 
             let recipients =
                 data.Hosts

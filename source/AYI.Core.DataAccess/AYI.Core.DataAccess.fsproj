@@ -10,7 +10,7 @@
       <Compile Include="ScheduledEventDataAccess.fs" />
       <Compile Include="LocationDataAccess.fs" />
       <Compile Include="InvitationDataAccess.fs" />
-      <Compile Include="PeopleDataAccess.fs" />
+      <Compile Include="ContactDataAccess.fs" />
     </ItemGroup>
 
     <ItemGroup>

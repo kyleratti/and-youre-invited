@@ -28,17 +28,17 @@ public class BaseTestFixture
 		ConnectionFactory.Dispose();
 	}
 
-	protected async Task<DisposablePerson> CreateTempContact(string firstName, Maybe<string> lastName = default, Maybe<string> email = default)
+	protected async Task<DisposableContact> CreateTempContact(string firstName, Maybe<string> lastName = default, Maybe<string> email = default)
 	{
-		var personId = await CreateContact(firstName, lastName, email);
-		return new DisposablePerson(ConnectionFactory, personId);
+		var contactId = await CreateContact(firstName, lastName, email);
+		return new DisposableContact(ConnectionFactory, contactId);
 	}
 
 	protected async Task<int> CreateContact(string firstName, Maybe<string> lastName, Maybe<string> email)
 	{
 		await using var conn = await ConnectionFactory.CreateConnection();
 
-		var personId = await conn.ExecuteScalar<int>(
+		var contactId = await conn.ExecuteScalar<int>(
 			"""
 			INSERT INTO contacts (first_name, last_name, phone_number_e164, email_address)
 			VALUES (@firstName, @lastName, NULL, @email);
@@ -50,7 +50,7 @@ public class BaseTestFixture
 				email = email.OrValue(null!),
 			});
 
-		return personId;
+		return contactId;
 	}
 
 	protected async Task AddHostToEvent(int contactId, string eventId)
@@ -112,9 +112,9 @@ public class BaseTestFixture
 		return eventId;
 	}
 	
-	protected async Task<DisposableInvite> CreateTempInvite(string inviteId, int personId, string eventId, Maybe<bool> canViewGuestList = default)
+	protected async Task<DisposableInvite> CreateTempInvite(string inviteId, int contactId, string eventId, Maybe<bool> canViewGuestList = default)
 	{
-		var createdInviteId = await CreateInvite(inviteId, personId, eventId, canViewGuestList);
+		var createdInviteId = await CreateInvite(inviteId, contactId, eventId, canViewGuestList);
 		return new DisposableInvite(ConnectionFactory, createdInviteId);
 	}
 
@@ -124,11 +124,11 @@ public class BaseTestFixture
 		await conn.Execute(
 			"""
 			INSERT INTO invitations (invitation_id, contact_id, can_view_guest_list, created_at, scheduled_event_id)
-			VALUES (@inviteId, @personId, @canViewGuestList, CURRENT_TIMESTAMP, @eventId)
+			VALUES (@inviteId, @contactId, @canViewGuestList, CURRENT_TIMESTAMP, @eventId)
 			""", new
 			{
 				inviteId,
-				contactId = contactId,
+				contactId,
 				canViewGuestList = canViewGuestList.OrValue(false),
 				eventId,
 			});

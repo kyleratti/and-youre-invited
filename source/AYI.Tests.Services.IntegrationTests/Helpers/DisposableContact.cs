@@ -2,13 +2,13 @@
 
 namespace AYI.Tests.Services.IntegrationTests.Helpers;
 
-public sealed class DisposablePerson : IAsyncDisposable
+public sealed class DisposableContact : IAsyncDisposable
 {
 	private readonly IDbConnectionFactory _connectionFactory;
 
 	public int ContactId { get; }
 
-	public DisposablePerson(IDbConnectionFactory connectionFactory, int contactId)
+	public DisposableContact(IDbConnectionFactory connectionFactory, int contactId)
 	{
 		_connectionFactory = connectionFactory;
 		ContactId = contactId;

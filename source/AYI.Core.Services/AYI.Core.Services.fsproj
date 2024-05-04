@@ -11,7 +11,7 @@
       <Compile Include="Locations.fs" />
       <Compile Include="Invitations.fs" />
       <Compile Include="ScheduledEventService.fs" />
-      <Compile Include="People.fs" />
+      <Compile Include="Contact.fs" />
       <Compile Include="Notifications.fs" />
       <Compile Include="EmailSender.fs" />
     </ItemGroup>

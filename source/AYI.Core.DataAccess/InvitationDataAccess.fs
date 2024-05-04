@@ -105,9 +105,9 @@ let getAuxiliaryData (db : IDatabaseConnection<ReadOnly>)
 
 [<RequireQualifiedAccess>]
 type EventRsvp =
-    | Attending of personId : int * firstName : string * lastName : string option
-    | NotAttending of personId : int * firstName : string * lastName : string option
-    | NoResponse of personId : int * firstName : string * lastName : string option
+    | Attending of contactId : int * firstName : string * lastName : string option
+    | NotAttending of contactId : int * firstName : string * lastName : string option
+    | NoResponse of contactId : int * firstName : string * lastName : string option
 
 let getRsvpStatusForEvent   (db : IDatabaseConnection<ReadOnly>)
                             (cancellationToken: CancellationToken)

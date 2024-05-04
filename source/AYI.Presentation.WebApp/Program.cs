@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IScheduledEventService, ScheduledEvents.ScheduledEventService>();
 builder.Services.AddScoped<ILocationService, Locations.LocationService>();
-builder.Services.AddScoped<IPeopleService, People.PeopleService>();
+builder.Services.AddScoped<IContactService, Contacts.ContactService>();
 builder.Services.AddScoped<IInvitationService, Invitations.InvitationService>();
 builder.Services.AddScoped<INotificationService, Notifications.NotificationService>();
 builder.Services.AddScoped<IEmailSender, EmailSender.EmailSenderService>();

@@ -36,9 +36,9 @@ public class NotificationServiceTests : BaseTestFixture
 		// Arrange
 		await using var evnt = await CreateTempScheduledEvent(eventId: nameof(SendNewRsvpRecordedNotification_SendsNotification_ToHosts));
 		await using var host = await CreateTempContact("Host", "McHost", "host@party.party");
-		await using var person = await CreateTempContact("I'm", "Invited", "invited@invite.net");
+		await using var contact = await CreateTempContact("I'm", "Invited", "invited@invite.net");
 		await AddHostToEvent(host.ContactId, evnt.EventId);
-		var inviteId = await CreateInvite(inviteId: "my-invite", person.ContactId, evnt.EventId);
+		var inviteId = await CreateInvite(inviteId: "my-invite", contact.ContactId, evnt.EventId);
 		var auxData = new Invitations.SpringHasSprungAuxiliaryData("cats", "bananas");
 		await SetRsvp(inviteId, InvitationResponseDto.Attending);
 		A.CallTo(() => _fakeInvitationService.GetAuxiliaryData(inviteId, A<CancellationToken>._))
@@ -83,11 +83,11 @@ public class NotificationServiceTests : BaseTestFixture
 		var inviteId = Guid.NewGuid().ToString();
 		await using var evnt = await CreateTempScheduledEvent(eventId: nameof(SendNewRsvpRecordedNotification_SendsNotification_IncludingAuxData_For_SpringHasSprung_ToHosts));
 		await using var host = await CreateTempContact("Host", "McHost", "host@party.party");
-		await using var person = await CreateTempContact("I'm", "Invited", "invited@invite.net");
-		await using var person2 = await CreateTempContact("Not Responding");
+		await using var contact = await CreateTempContact("I'm", "Invited", "invited@invite.net");
+		await using var contact2 = await CreateTempContact("Not Responding");
 		await AddHostToEvent(host.ContactId, evnt.EventId);
-		await using var invite = await CreateTempInvite(inviteId, person.ContactId, evnt.EventId);
-		await using var _  = await CreateTempInvite(inviteId: "another-invite", person2.ContactId, evnt.EventId);
+		await using var invite = await CreateTempInvite(inviteId, contact.ContactId, evnt.EventId);
+		await using var _  = await CreateTempInvite(inviteId: "another-invite", contact2.ContactId, evnt.EventId);
 		await SetRsvp(invite.InviteId, InvitationResponseDto.NotAttending);
 
 		// Act

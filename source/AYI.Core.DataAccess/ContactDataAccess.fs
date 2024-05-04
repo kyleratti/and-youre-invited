@@ -1,4 +1,4 @@
-﻿module AYI.Core.DataAccess.PeopleDataAccess
+﻿module AYI.Core.DataAccess.ContactDataAccess
 
 open System.Collections.Generic
 open System.Threading
@@ -8,7 +8,7 @@ open DbHelpers
 open FSharp.Control
 open FruityFoundation.Db.Db
 
-let findPeopleById  (db : IDatabaseConnection<ReadOnly>)
+let findContactsById  (db : IDatabaseConnection<ReadOnly>)
                     (cancellationToken : CancellationToken)
                     (contactIds : IReadOnlyCollection<int>) =
     (@"SELECT
