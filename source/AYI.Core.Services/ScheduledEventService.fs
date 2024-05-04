@@ -109,6 +109,11 @@ type ScheduledEventService (dbConnectionFactory : IDbConnectionFactory) =
                     |> TaskSeq.toArrayAsync
                     |> Task.map (emptySeqFailWith (sprintf "Unable to find invitations for event with id %s" scheduledEvent.EventId))
 
+                let! hosts =
+                    scheduledEvent.EventId
+                    |> ScheduledEventDataAccess.findHostsByEventId db cancellationToken
+                    |> TaskSeq.toArrayAsync
+
                 let thisInvite = inviteId |> getThisInvite allInviteDtos invitedContacts
 
                 return Some ({
@@ -117,6 +122,7 @@ type ScheduledEventService (dbConnectionFactory : IDbConnectionFactory) =
                         ThisInvite = thisInvite
                         AllInvitations = allInvites
                         AllInvitedContacts = invitedContacts
+                        Hosts = hosts
                     }: EventInfo)
                     |> Option.toMaybe
         }

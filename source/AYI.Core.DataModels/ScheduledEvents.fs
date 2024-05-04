@@ -41,10 +41,17 @@ type Invitation = {
     Response : InvitationResponse option
 }
 
+type EventHost = {
+    ContactId : int
+    EventId : string
+    EmailAddress : string option
+}
+
 type EventInfo = {
     Event : ScheduledEvent
     Location : Location
     ThisInvite : Invitation
-    AllInvitations : IReadOnlyCollection<Invitation>
-    AllInvitedContacts : IReadOnlyCollection<Contact>
+    AllInvitations : Invitation IReadOnlyCollection
+    AllInvitedContacts : Contact IReadOnlyCollection
+    Hosts : EventHost IReadOnlyCollection
 }

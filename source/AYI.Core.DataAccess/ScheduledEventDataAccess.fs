@@ -39,12 +39,6 @@ let findEventByInviteId (connection : IDatabaseConnection<ReadOnly>) (cancellati
             //|> TaskSeq.tryHead
 }
 
-type EventHost = {
-    ContactId : int
-    EventId : string
-    EmailAddress : string option
-}
-
 let findHostsByEventId  (db : IDatabaseConnection<ReadOnly>)
                         (cancellationToken : CancellationToken)
                         (eventId : string) =
