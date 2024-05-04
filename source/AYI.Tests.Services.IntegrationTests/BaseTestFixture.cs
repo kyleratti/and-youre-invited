@@ -28,19 +28,19 @@ public class BaseTestFixture
 		ConnectionFactory.Dispose();
 	}
 
-	protected async Task<DisposablePerson> CreateTempPerson(string firstName, Maybe<string> lastName = default, Maybe<string> email = default)
+	protected async Task<DisposablePerson> CreateTempContact(string firstName, Maybe<string> lastName = default, Maybe<string> email = default)
 	{
-		var personId = await CreatePerson(firstName, lastName, email);
+		var personId = await CreateContact(firstName, lastName, email);
 		return new DisposablePerson(ConnectionFactory, personId);
 	}
 
-	protected async Task<int> CreatePerson(string firstName, Maybe<string> lastName, Maybe<string> email)
+	protected async Task<int> CreateContact(string firstName, Maybe<string> lastName, Maybe<string> email)
 	{
 		await using var conn = await ConnectionFactory.CreateConnection();
 
 		var personId = await conn.ExecuteScalar<int>(
 			"""
-			INSERT INTO people (first_name, last_name, phone_number_e164, email_address)
+			INSERT INTO contacts (first_name, last_name, phone_number_e164, email_address)
 			VALUES (@firstName, @lastName, NULL, @email);
 			SELECT last_insert_rowid();
 			""", new
@@ -53,18 +53,17 @@ public class BaseTestFixture
 		return personId;
 	}
 
-	protected async Task AddHostToEvent(int personId, string eventId)
+	protected async Task AddHostToEvent(int contactId, string eventId)
 	{
 		await using var conn = await ConnectionFactory.CreateConnection();
 
 		await conn.Execute(
 			"""
-			INSERT INTO event_hosts (event_id, person_id)
-			VALUES (@eventId, @personId)
+			INSERT INTO event_hosts (event_id, contact_id)
+			VALUES (@eventId, @contactId)
 			""", new
 			{
-				eventId,
-				personId,
+				eventId, contactId = contactId,
 			});
 	}
 
@@ -119,17 +118,17 @@ public class BaseTestFixture
 		return new DisposableInvite(ConnectionFactory, createdInviteId);
 	}
 
-	protected async Task<string> CreateInvite(string inviteId, int personId, string eventId, Maybe<bool> canViewGuestList = default)
+	protected async Task<string> CreateInvite(string inviteId, int contactId, string eventId, Maybe<bool> canViewGuestList = default)
 	{
 		await using var conn = await ConnectionFactory.CreateConnection();
 		await conn.Execute(
 			"""
-			INSERT INTO invitations (invitation_id, person_id, can_view_guest_list, created_at, scheduled_event_id)
+			INSERT INTO invitations (invitation_id, contact_id, can_view_guest_list, created_at, scheduled_event_id)
 			VALUES (@inviteId, @personId, @canViewGuestList, CURRENT_TIMESTAMP, @eventId)
 			""", new
 			{
 				inviteId,
-				personId,
+				contactId = contactId,
 				canViewGuestList = canViewGuestList.OrValue(false),
 				eventId,
 			});

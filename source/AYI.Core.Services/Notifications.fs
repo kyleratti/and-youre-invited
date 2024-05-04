@@ -94,7 +94,7 @@ let private toPlainTextListWithDefault (defaultVal : string option) (input : str
 let private toPlainTextList (defaultVal : string) (input : string seq) =
     input |> toPlainTextListWithDefault (Some defaultVal)
 
-let private generatePlainTextMessageBody (personResponding : Person)
+let private generatePlainTextMessageBody (personResponding : Contact)
                                 (response : InvitationResponseDto)
                                 (auxData : AuxiliaryRsvpData option)
                                 (otherRsvps : EventRsvp array) =

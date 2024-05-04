@@ -50,10 +50,10 @@ let findHostsByEventId  (db : IDatabaseConnection<ReadOnly>)
                         (eventId : string) =
     (@"SELECT
                 eh.event_id
-                ,p.person_id
-                ,p.email_address
+                ,c.contact_id
+                ,c.email_address
              FROM event_hosts eh
-             INNER JOIN people p ON p.person_id = eh.person_id
+             INNER JOIN contacts c ON c.contact_id = eh.contact_id
              WHERE
                 eh.event_id = @eventId",
              [|("eventId", box eventId)|])

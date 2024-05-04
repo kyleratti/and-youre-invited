@@ -30,7 +30,7 @@ let private toInvitationResponse = function
         | resp -> failwithf "Invalid response (%A)" resp
 
 let private getThisInvite   (allInvites : IReadOnlyCollection<InvitationDto>)
-                            (invitedPeople : IReadOnlyCollection<Person>)
+                            (invitedPeople : IReadOnlyCollection<Contact>)
                             (inviteId : string) =
     let thisInvite =
         allInvites
@@ -39,26 +39,26 @@ let private getThisInvite   (allInvites : IReadOnlyCollection<InvitationDto>)
 
     let thisPerson =
         invitedPeople
-        |> Seq.tryFind (fun x -> x.PersonId = thisInvite.PersonId)
-        |> orFailWith (sprintf "Unable to find person with id %d" thisInvite.PersonId)
+        |> Seq.tryFind (fun x -> x.ContactId = thisInvite.ContactId)
+        |> orFailWith (sprintf "Unable to find person with id %d" thisInvite.ContactId)
 
     {
         InvitationId = thisInvite.InvitationId
-        Person = thisPerson
+        Contact = thisPerson
         CanViewGuestList = thisInvite.CanViewGuestList
         CreatedAt = thisInvite.CreatedAt
         Response = thisInvite.Response |> toInvitationResponse
     } : Invitation
 
-let private getPerson (invitedPeople : IReadOnlyCollection<Person>) (personId : int) =
+let private getPerson (invitedPeople : IReadOnlyCollection<Contact>) (personId : int) =
     invitedPeople
-    |> Seq.tryFind (fun x -> x.PersonId = personId)
+    |> Seq.tryFind (fun x -> x.ContactId = personId)
     |> orFailWith (sprintf "Unable to find person with id %d" personId)
 
-let private toInvitation (invitedPeople : IReadOnlyCollection<Person>) (dto : InvitationDto) =
+let private toInvitation (invitedPeople : IReadOnlyCollection<Contact>) (dto : InvitationDto) =
     {
         InvitationId = dto.InvitationId
-        Person = dto.PersonId |> getPerson invitedPeople
+        Contact = dto.ContactId |> getPerson invitedPeople
         CanViewGuestList = dto.CanViewGuestList
         CreatedAt = dto.CreatedAt
         Response = dto.Response |> toInvitationResponse
@@ -96,7 +96,7 @@ type ScheduledEventService (dbConnectionFactory : IDbConnectionFactory) =
 
                 let! invitedPeople =
                     allInviteDtos
-                    |> Seq.map (_.PersonId)
+                    |> Seq.map (_.ContactId)
                     |> Array.ofSeq
                     |> PeopleDataAccess.findPeopleById db cancellationToken
                     |> TaskSeq.toArrayAsync
@@ -116,7 +116,7 @@ type ScheduledEventService (dbConnectionFactory : IDbConnectionFactory) =
                         Location = location
                         ThisInvite = thisInvite
                         AllInvitations = allInvites
-                        AllInvitedPeople = invitedPeople
+                        AllInvitedContacts = invitedPeople
                     }: EventInfo)
                     |> Option.toMaybe
         }

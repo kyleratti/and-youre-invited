@@ -6,12 +6,12 @@ public sealed class DisposablePerson : IAsyncDisposable
 {
 	private readonly IDbConnectionFactory _connectionFactory;
 
-	public int PersonId { get; }
+	public int ContactId { get; }
 
-	public DisposablePerson(IDbConnectionFactory connectionFactory, int personId)
+	public DisposablePerson(IDbConnectionFactory connectionFactory, int contactId)
 	{
 		_connectionFactory = connectionFactory;
-		PersonId = personId;
+		ContactId = contactId;
 	}
 
 	/// <inheritdoc />
@@ -20,12 +20,12 @@ public sealed class DisposablePerson : IAsyncDisposable
 		await using var conn = await _connectionFactory.CreateConnection();
 		await using var tx = await conn.CreateTransaction();
 
-		var allInvites = (await tx.Query<string>("SELECT invitation_id FROM invitations WHERE person_id = @personId", new { personId = PersonId })).ToArray();
+		var allInvites = (await tx.Query<string>("SELECT invitation_id FROM invitations WHERE contact_id = @contactId", new { contactId = ContactId })).ToArray();
 		await tx.Execute("DELETE FROM invitation_responses WHERE invitation_id IN @inviteIds", new { inviteIds = allInvites });
 		await tx.Execute("DELETE FROM invitation_auxiliary_responses WHERE invitation_id IN @inviteIds", new { inviteIds = allInvites });
-		await tx.Execute("DELETE FROM invitations WHERE person_id = @personId", new { personId = PersonId });
-		await tx.Execute("DELETE FROM event_hosts WHERE person_id = @personId", new { personId = PersonId });
-		await tx.Execute("DELETE FROM people WHERE person_id = @personId", new { personId = PersonId });
+		await tx.Execute("DELETE FROM invitations WHERE contact_id = @contactId", new { contactId = ContactId });
+		await tx.Execute("DELETE FROM event_hosts WHERE contact_id = @contactId", new { contactId = ContactId });
+		await tx.Execute("DELETE FROM contacts WHERE contact_id = @contactId", new { contactId = ContactId });
 
 		await tx.Commit(CancellationToken.None);
 	}

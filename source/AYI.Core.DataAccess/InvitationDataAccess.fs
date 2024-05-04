@@ -42,7 +42,7 @@ let findInvitationsByEventId (db : IDatabaseConnection<ReadOnly>)
     (@"SELECT
             i.invitation_id
             ,i.scheduled_event_id
-            ,i.person_id
+            ,i.contact_id
             ,i.can_view_guest_list
             ,i.created_at
             ,ir.response
@@ -55,7 +55,7 @@ let findInvitationsByEventId (db : IDatabaseConnection<ReadOnly>)
     |> mapReader cancellationToken (fun reader ->
         {
             InvitationId = reader |> getString 0
-            PersonId = reader |> getInt32 2
+            ContactId = reader |> getInt32 2
             CanViewGuestList = reader |> getBool 3
             CreatedAt = reader |> getDateTimeOffset 4
             Response = parseInvitationResponse (reader |> tryGetByte 5) (reader |> tryGetDateTimeOffset 6)
@@ -113,27 +113,27 @@ let getRsvpStatusForEvent   (db : IDatabaseConnection<ReadOnly>)
                             (cancellationToken: CancellationToken)
                             (eventId : string) =
     (@"SELECT
-            i.person_id
-            ,p.first_name
-            ,p.last_name
+            i.contact_id
+            ,C.first_name
+            ,c.last_name
             ,ir.response
             ,ir.created_at
          FROM invitations i
-         INNER JOIN people p ON p.person_id = i.person_id
+         INNER JOIN contacts c ON c.contact_id = i.contact_id
          LEFT JOIN invitation_responses ir ON ir.invitation_id = i.invitation_id
          WHERE i.scheduled_event_id = @eventId",
         [|"@eventId", box eventId|])
     |> executeReader db cancellationToken
     |> mapReader cancellationToken (fun reader ->
-        let personId = reader |> getInt32 0
+        let contactId = reader |> getInt32 0
         let firstName = reader |> getString 1
         let lastName = reader |> tryGetString 2
         let response = parseInviteResponse (reader |> tryGetByte 3) (reader |> tryGetDateTimeOffset 4)
 
         match response with
         | Some (InvitationResponse.Attending _) ->
-            EventRsvp.Attending (personId, firstName, lastName)
+            EventRsvp.Attending (contactId, firstName, lastName)
         | Some (InvitationResponse.NotAttending _) ->
-            EventRsvp.NotAttending (personId, firstName, lastName)
+            EventRsvp.NotAttending (contactId, firstName, lastName)
         | None ->
-            EventRsvp.NoResponse (personId, firstName, lastName))
+            EventRsvp.NoResponse (contactId, firstName, lastName))

@@ -16,7 +16,7 @@
 	<Rsvp ThisInvite="EventInfo.ThisInvite">
 		<Attending>
 			<h1 class="text-7xl text-center">
-				<span class="font-bold">@EventInfo.ThisInvite.Person.FirstName, </span>
+				<span class="font-bold">@EventInfo.ThisInvite.Contact.FirstName, </span>
 				Spring Has Sprung and <span class="text-secondary">You'll Be Feasting!</span>
 			</h1>
 
@@ -25,7 +25,7 @@
 
 		<NotAttending>
 			<h1 class="text-7xl text-center">
-				<span class="font-bold">@EventInfo.ThisInvite.Person.FirstName, </span>
+				<span class="font-bold">@EventInfo.ThisInvite.Contact.FirstName, </span>
 				Spring Has Sprung and <span class="text-secondary">You're Missing the Feast!</span>
 			</h1>
 
@@ -34,7 +34,7 @@
 
 		<NoResponse>
 			<h1 class="text-7xl text-center">
-				<span class="font-bold text-secondary">@EventInfo.ThisInvite.Person.FirstName, </span>
+				<span class="font-bold text-secondary">@EventInfo.ThisInvite.Contact.FirstName, </span>
 				Spring Has Sprung and <span class="text-secondary">You're Invited to Feast!</span>
 			</h1>
 
@@ -121,7 +121,7 @@
 				<h2 class="font-bold text-3xl text-center">Guest List?</h2>
 
 				<GuestList Invitations="EventInfo.AllInvitations"
-				           People="EventInfo.AllInvitedPeople"
+				           People="EventInfo.AllInvitedContacts"
 				           IncludeInvitationInviteLinks="true"/>
 			</div>
 		}
@@ -245,7 +245,7 @@
 			return;
 		}
 
-		if (!Option.toMaybe(auxDataValue.TrySpringHasSprung()).Try(out var springHasSprungData))
+		if (!auxDataValue.TrySpringHasSprung().ToMaybe().Try(out var springHasSprungData))
 			throw new InvalidOperationException($"Auxiliary data type mismatched (Expected={typeof(Invitations.SpringHasSprungAuxiliaryData).FullName}, Actual={auxDataValue.GetType().FullName}");
 
 		_auxDataQuery = AuxiliaryDataQuery.NewSuccess(springHasSprungData);

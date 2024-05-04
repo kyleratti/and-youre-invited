@@ -27,7 +27,7 @@ type InvitationResponseDto =
 
 type InvitationDto = {
     InvitationId : string
-    PersonId : int
+    ContactId : int
     CanViewGuestList : bool
     CreatedAt : DateTimeOffset
     Response : (InvitationResponseDto * DateTimeOffset) option
@@ -35,7 +35,7 @@ type InvitationDto = {
 
 type Invitation = {
     InvitationId : string
-    Person : Person
+    Contact : Contact
     CanViewGuestList : bool
     CreatedAt : DateTimeOffset
     Response : InvitationResponse option
@@ -46,5 +46,5 @@ type EventInfo = {
     Location : Location
     ThisInvite : Invitation
     AllInvitations : IReadOnlyCollection<Invitation>
-    AllInvitedPeople : IReadOnlyCollection<Person>
+    AllInvitedContacts : IReadOnlyCollection<Contact>
 }
