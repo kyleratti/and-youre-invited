@@ -1,0 +1,81 @@
+﻿@page "/i/{inviteId}"
+@using AYI.Core.Contracts
+@using AYI.Presentation.WebApp.Events
+@using AYI.Presentation.WebApp.Options
+@using Microsoft.Extensions.Options
+@using static AYI.Presentation.WebApp.Util.TaskHelper
+@using EventQuery = AYI.Presentation.WebApp.Components.Shared.DataQuery<AYI.Core.DataModels.EventInfo>
+@inject IScheduledEventService ScheduledEventService
+@inject INotificationService NotificationService
+@inject IOptions<DisplayOptions> DisplayOptions
+@rendermode InteractiveServer
+
+@switch (_eventQuery)
+{
+	case EventQuery.Success { Data: var eventInfo }:
+		<PageTitle>@eventInfo.Event.Title And You're Invited!</PageTitle>
+		<EventAdapter EventInfo="eventInfo" OnRsvpChanged="OnRsvpChanged" />
+		break;
+	case EventQuery.Pending:
+		<GenericLoadingSplashScreen />
+		break;
+	case EventQuery.Error error:
+		<p>@error.Message</p>
+		break;
+	default:
+		throw new NotImplementedException(_eventQuery.GetType().FullName);
+}
+
+@code {
+	[Parameter]
+	public string? InviteId { get; set; }
+
+	private EventQuery _eventQuery = EventQuery.Loading;
+
+	/// <inheritdoc />
+	protected override async Task OnInitializedAsync()
+	{
+		if (string.IsNullOrEmpty(InviteId))
+		{
+			_eventQuery = EventQuery.NewError("Invite not found.");
+			await InvokeAsync(StateHasChanged);
+			return;
+		}
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool isFirstRender)
+	{
+		if (!isFirstRender)
+			return;
+
+		await TryLoadScheduledEvent();
+	}
+
+	private async Task OnRsvpChanged(NewRsvpRecordedEventArgs args)
+	{
+		await TryLoadScheduledEvent();
+		await NotificationService.SendNewRsvpRecordedNotification(args.InvitationId, args.Response, CancellationToken.None);
+	}
+
+	private async Task TryLoadScheduledEvent()
+	{
+		if (string.IsNullOrEmpty(InviteId))
+			return;
+
+		var scheduledEventResult = await WithMinimumDelay(
+			TimeSpan.FromMilliseconds(DisplayOptions.Value.MinimumLoadTimeMs),
+			async () => await ScheduledEventService.GetEventInfoByInviteId(InviteId, CancellationToken.None));
+
+		if (!scheduledEventResult.Try(out var eventInfo))
+		{
+			_eventQuery = EventQuery.NewError("Invite not found.");
+			await InvokeAsync(StateHasChanged);
+			return;
+		}
+
+		_eventQuery = EventQuery.NewSuccess(eventInfo);
+		await InvokeAsync(StateHasChanged);
+	}
+
+}

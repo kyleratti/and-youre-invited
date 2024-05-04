@@ -1,0 +1,21 @@
+﻿@using AYI.Core.DataModels
+@using AYI.Presentation.WebApp.Components.Pages.Events
+@using AYI.Presentation.WebApp.Events
+
+@switch (EventInfo.Event)
+{
+	case { UrlSlug: "SpringHasSprung" }:
+		<SpringHasSprung EventInfo="EventInfo" OnRsvpChanged="OnRsvpChanged" />
+		break;
+	default:
+		throw new NotImplementedException(EventInfo.Event.UrlSlug);
+}
+
+@code {
+	[Parameter, EditorRequired]
+  public EventInfo EventInfo { get; set; } = null!;
+
+	[Parameter]
+	public EventCallback<NewRsvpRecordedEventArgs> OnRsvpChanged { get; set; }
+
+}

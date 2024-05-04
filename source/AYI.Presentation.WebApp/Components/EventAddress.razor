@@ -1,0 +1,38 @@
+﻿@using AYI.Core.DataModels
+@using FruityFoundation.FsBase
+
+@if (ShowFullAddress)
+{
+	<address>
+		@Location.Street1<br/>
+		@if (Option.toMaybe(Location.Street2).Try(out var street2))
+		{
+			@street2<br/>
+		}
+		@Location.City, @Location.State @Location.ZipCode
+	</address>
+
+	<div class="mt-2">
+		<a href="@GetGoogleMapsUrl()" target="_blank">View on Google Maps 🌎</a>
+	</div>
+}
+else
+{
+	<address>
+		@Location.City, @Location.State @Location.ZipCode
+	</address>
+}
+
+@code {
+	[Parameter, EditorRequired]
+	public Location Location { get; set; } = null!;
+
+	[Parameter, EditorRequired]
+	public bool ShowFullAddress { get; set; }
+
+	private string GetGoogleMapsUrl()
+	{
+		var address = Location.Street1 + " " + Location.City + " " + Location.State + " " + Location.ZipCode;
+		return $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(address)}";
+	}
+}

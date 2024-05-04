@@ -1,0 +1,27 @@
+﻿@using AYI.Core.DataModels
+@using FruityFoundation.FsBase
+
+@if (Option.toMaybe(ThisInvite.Response).Try(out var response))
+{
+	@response.Merge(
+		onAttending: _ => Attending,
+		onNotAttending: _ => NotAttending)
+}
+else
+{
+	@NoResponse
+}
+
+@code {
+	[Parameter, EditorRequired]
+	public Invitation ThisInvite { get; set; } = null!;
+
+	[Parameter, EditorRequired]
+	public RenderFragment Attending { get; set; } = null!;
+
+	[Parameter, EditorRequired]
+	public RenderFragment NotAttending { get; set; } = null!;
+
+	[Parameter, EditorRequired]
+	public RenderFragment NoResponse { get; set; } = null!;
+}

@@ -1,0 +1,27 @@
+name: "CI"
+
+on:
+  pull_request:
+    branches: [main]
+
+# Allow one run of this workflow per branch and cancel existing runs if triggered again
+concurrency:
+  group: and-youre-invited-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - run: cat Directory.packages.props
+        working-directory: source
+      - run: dotnet restore
+        working-directory: source
+      - run: dotnet build --no-restore
+        working-directory: source
+      - run: dotnet test --no-restore
+        working-directory: source

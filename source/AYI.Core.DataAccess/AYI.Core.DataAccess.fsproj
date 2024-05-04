@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="DbHelpers.fs" />
+      <Compile Include="ScheduledEventDataAccess.fs" />
+      <Compile Include="LocationDataAccess.fs" />
+      <Compile Include="InvitationDataAccess.fs" />
+      <Compile Include="ContactDataAccess.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AYI.Core.Contracts\AYI.Core.Contracts.csproj" />
+      <ProjectReference Include="..\DbAccess.Abstractions\DbAccess.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FruityFoundation.Db" />
+      <PackageReference Include="FruityFoundation.FsBase" />
+      <PackageReference Include="FSharp.Control.TaskSeq" />
+    </ItemGroup>
+
+</Project>

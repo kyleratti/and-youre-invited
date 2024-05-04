@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <UserSecretsId>2043c065-97a2-49da-9882-a21ec6cb99d1</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FruityFoundation.Base" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AYI.Core.Contracts\AYI.Core.Contracts.csproj" />
+    <ProjectReference Include="..\AYI.Core.Services\AYI.Core.Services.fsproj" />
+    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+  </ItemGroup>
+  <Target Name="Tailwind:Install" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="Installing Tailwind CLI" />
+    <DownloadFile SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)" SourceUrl="https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.1/tailwindcss-windows-x64.exe" Condition="($([MSBuild]::IsOSPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64')">
+      <Output TaskParameter="DownloadedFile" PropertyName="TailwindExecutable" />
+    </DownloadFile>
+  </Target>
+  <Target Name="Tailwind:InstallLinux" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="Installing Tailwind CLI" />
+    <DownloadFile SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)" SourceUrl="https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.1/tailwindcss-linux-x64" Condition="($([MSBuild]::IsOSPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64')">
+      <Output TaskParameter="DownloadedFile" PropertyName="TailwindExecutable" />
+    </DownloadFile>
+  </Target>
+  <Target Name="Tailwind:InstallMac" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="Installing Tailwind CLI" />
+    <DownloadFile SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)" SourceUrl="https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.1/tailwindcss-macos-x64" Condition="($([MSBuild]::IsOSPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64')">
+      <Output TaskParameter="DownloadedFile" PropertyName="TailwindExecutable" />
+    </DownloadFile>
+  </Target>
+  <Target Name="Tailwind:InstallMacArm" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="Installing Tailwind CLI" />
+    <DownloadFile SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)" SourceUrl="https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.1/tailwindcss-macos-arm64" Condition="($([MSBuild]::IsOSPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'ARM64')">
+      <Output TaskParameter="DownloadedFile" PropertyName="TailwindExecutable" />
+    </DownloadFile>
+  </Target>
+  <Target Name="Tailwind:Permission" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="Making Tailwind CLI executable" />
+    <Exec Command="chmod +x $(TailwindExecutable)" Condition="($([MSBuild]::IsOSPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64') OR ($([MSBuild]::IsOSPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64') OR ($([MSBuild]::IsOSPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'ARM64')" />
+  </Target>
+  <Target Name="Tailwind:Run" AfterTargets="AfterBuild" DependsOnTargets="Tailwind:Permission">
+    <Message Importance="high" Text="Building CSS with Tailwind" />
+    <Exec Command="$(TailwindExecutable) -i .\tailwind.css -o .\wwwroot\css\site.css" />
+  </Target>
+</Project>
