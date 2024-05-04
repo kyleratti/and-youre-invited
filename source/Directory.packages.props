@@ -7,9 +7,9 @@
     <PackageVersion Include="Dapper" Version="2.1.35" />
     <PackageVersion Include="FakeItEasy" Version="8.2.0" />
     <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1" />
-    <PackageVersion Include="FruityFoundation.Base" Version="1.8.1" />
-    <PackageVersion Include="FruityFoundation.Db" Version="1.8.1" />
-    <PackageVersion Include="FruityFoundation.FsBase" Version="1.8.1" />
+    <PackageVersion Include="FruityFoundation.Base" Version="1.9.0" />
+    <PackageVersion Include="FruityFoundation.Db" Version="1.9.0" />
+    <PackageVersion Include="FruityFoundation.FsBase" Version="1.9.0" />
     <PackageVersion Include="FSharp.Control.TaskSeq" Version="0.4.0" />
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="8.0.4" />
     <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="8.0.3" />

@@ -74,7 +74,7 @@
 	{
 		return Invitations
 			.Where(x =>
-				Option.toMaybe(x.Response)
+				x.Response.ToMaybe()
 					.Map(resp => resp.IsAttending)
 					.OrValue(false))
 			.ToArray();
@@ -83,27 +83,27 @@
 	private IReadOnlyCollection<Invitation> GetNotAttending() =>
 		Invitations
 			.Where(x =>
-				Option.toMaybe(x.Response)
+				x.Response.ToMaybe()
 					.Map(resp => resp.IsNotAttending)
 					.OrValue(false))
 			.ToArray();
 
 	private IReadOnlyCollection<Invitation> GetNoResponse() =>
 		Invitations
-			.Where(x => !Option.toMaybe(x.Response).HasValue)
+			.Where(x => !x.Response.ToMaybe().HasValue)
 			.ToArray();
 
 	private bool IsAttending(Invitation invite) =>
-		Option.toMaybe(invite.Response)
+		invite.Response.ToMaybe()
 			.Map(x => x.IsAttending)
 			.OrValue(false);
 
 	private bool IsNotAttending(Invitation invite) =>
-		Option.toMaybe(invite.Response)
+		invite.Response.ToMaybe()
 			.Map(x => x.IsNotAttending)
 			.OrValue(false);
 
 	private bool IsNoResponse(Invitation invite) =>
-		!Option.toMaybe(invite.Response).HasValue;
+		!invite.Response.ToMaybe().HasValue;
 
 }
